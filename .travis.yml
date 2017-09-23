@@ -1,0 +1,8 @@
+language: java
+dist: trusty
+sudo: false
+services: 
+	- mysql
+before_install:
+	- mysql -e 'CREATE DATABASE IF NOT EXISTS contacts;'
+script: mvn clean verify
