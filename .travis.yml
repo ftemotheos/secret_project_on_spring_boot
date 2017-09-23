@@ -4,5 +4,5 @@ sudo: false
 services: 
 - mysql
 before_install:
-- mysql -e 'CREATE DATABASE IF NOT EXISTS contacts;'
+- mysql -e 'CREATE DATABASE IF NOT EXISTS mydb;'
 script: mvn clean verify
