@@ -4,24 +4,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class ContactRestController {
 
     @Autowired
-    private JdbcOperations jdbcOperations;
+    private ContactsRepository contactsRepository;
 
     @RequestMapping(value = "/hello/contacts", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody String getContacts(@RequestParam(value="nameFilter") String nameFilter) {
 
-        List<Contact> pojoContacts = jdbcOperations.query("SELECT * FROM contacts;", new BeanPropertyRowMapper<>(Contact.class));
+        List<Contact> pojoContacts = contactsRepository.getAll();
         Pattern pattern = Pattern.compile(nameFilter);
 
         for (Iterator<Contact> iterator = pojoContacts.iterator(); iterator.hasNext(); ) {
@@ -40,6 +46,25 @@ public class ContactRestController {
             e.printStackTrace();
         }
         return contacts;
+    }
+
+    @ExceptionHandler(PatternSyntaxException.class)
+    public ModelAndView handlePatternSyntaxException(HttpServletRequest req, PatternSyntaxException e) {
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("exception", e);
+        mav.addObject("url", req.getRequestURL());
+        mav.setStatus(HttpStatus.BAD_REQUEST);
+        return mav;
+    }
+
+    @Bean
+    public ContactsRepository contactsRepository() {
+        return new ConcreteContactsRepository();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager("contacts");
     }
 
 }

@@ -52,43 +52,16 @@ public class RestControllerTest {
         );
         jdbcOperations.update(
                 "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (1, 'Alice Johnson');"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (2, 'Bill Gates');"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (3, 'John Silver');"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (4, 'Donald Trump');"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (5, 'Monica Bellucci' );"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (6, 'Silvia Peters' );"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (7, 'Joshua Bloch' );"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (8, 'Britney Spears' );"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (9, 'Sara Connor' );"
-        );
-        jdbcOperations.update(
-                "INSERT IGNORE INTO contacts (id, name) " +
-                        "VALUES (10, 'Peter Parker' );"
+                        "VALUES (1, 'Alice Johnson'), " +
+                                "(2, 'Bill Gates'), " +
+                                "(3, 'John Silver'), " +
+                                "(4, 'Donald Trump'), " +
+                                "(5, 'Monica Bellucci'), " +
+                                "(6, 'Silvia Peters'), " +
+                                "(7, 'Joshua Bloch'), " +
+                                "(8, 'Britney Spears'), " +
+                                "(9, 'Sara Connor'), " +
+                                "(10, 'Peter Parker');"
         );
     }
 
@@ -174,6 +147,12 @@ public class RestControllerTest {
                         "{\"id\":5,\"name\":\"Monica Bellucci\"}," +
                         "{\"id\":7,\"name\":\"Joshua Bloch\"}]"
                 ));
+    }
+
+    @Test
+    public void getWithIncorrectParameter() throws Exception {
+        mockMvc.perform(get("/hello/contacts").param("nameFilter", "[\\\\"))
+                .andExpect(status().is4xxClientError());
     }
 
 }
